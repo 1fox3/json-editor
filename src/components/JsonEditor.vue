@@ -64,7 +64,22 @@
                 class="md-dense json-content__button"
                 @click.native="loadJsonFromFile"
               >Load from File</md-button>
+              <md-button
+                class="md-dense json-content__button"
+                @click.native="getContent"
+              >GET CONTENT</md-button>
             </div>
+          </div>
+        </div>
+      </div>
+      <div class="json-content__panel" slot="panel3">
+        <div class="json-content__container">
+          <div class="json-content__textarea-container">
+            <ace-editor
+              ref="demoContent"
+              class="json-content__ace"
+              :content="demoContent"
+            ></ace-editor>
           </div>
         </div>
       </div>
@@ -158,9 +173,10 @@
         }
       })
     },
-    mounted () {
+    async mounted () {
       // adjust split panel size
       this.$refs.splitPanel.sizeChanged(this)
+      this.init()
     },
     data () {
       return {
@@ -179,6 +195,7 @@
         },
         // data for json content
         jsonContent: '',
+        demoContent: '{}',
         editLabel: 'EDIT',
         downloadLink: null,
         downloadFilename: null,
@@ -227,6 +244,13 @@
       }
     },
     methods: {
+      async init () {
+        await this.getOriJson()
+        await this.setup(null, 'json_schema')
+        await this.editJsonConfirmed(true, JSON.parse(this.jsonContent))
+        this.currentVersionNo--
+        this.treeDataBackups.pop()
+      },
       async setup (repository, schema) {
         this.repository = repository
         this.$refs.tree.setRepository(repository)
@@ -412,9 +436,9 @@
           this.editJsonConfirmed(true, value)
         }
       },
-      editJsonConfirmed (confirmResult, value) {
+      async editJsonConfirmed (confirmResult, value) {
         if (typeof value !== 'undefined') {
-          this.setJsonToTree(value, false, this.jsonSchema)
+          await this.setJsonToTree(value, false, this.jsonSchema)
         } else {
           if (!confirmResult) return
           let content = this.jsonContent
@@ -484,6 +508,24 @@
       },
       jsonContentChanged (content) {
         console.log(`jsonContent changed: ${content}`)
+      },
+      getContent () {
+        window.alert(this.jsonContent)
+      },
+      getOriJson () {
+        return new Promise(resolve => {
+          const url = 'https://api.1fox3.com/stock/stockMarket/aroundDealDate?stockMarket=1'
+          const ajax = new window.XMLHttpRequest()
+          ajax.open('post', url, true)
+          ajax.send()
+          const self = this
+          ajax.onloadend = function () {
+            if (ajax.readyState === 4 && ajax.status === 200) {
+              self.jsonContent = this.responseText
+              resolve()
+            }
+          }
+        })
       }
     },
     components: {

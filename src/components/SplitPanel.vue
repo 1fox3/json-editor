@@ -12,6 +12,9 @@
     <div class="split-panel__panel-container" :style="panel2Style">
       <slot name="panel2"></slot>
     </div>
+    <div class="split-panel__panel-container" :style="panel2Style">
+      <slot name="panel3"></slot>
+    </div>
     <div class="split-panel__size-handle" :style="handleStyle" @mousedown="startResize"></div>
   </div>
 </template>

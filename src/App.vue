@@ -23,7 +23,7 @@
     created () {
       this.schema = getURLParameter('schema')
       // setup after 1 sec
-      window.setTimeout(this.setup, 1000)
+      // window.setTimeout(this.setup, 1000)
     },
     data () {
       return {
